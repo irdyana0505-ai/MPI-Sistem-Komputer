@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI Sistem Komputer - Next-Gen Interactive Learning</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js untuk Ilustrasi 3D Komputer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Canvas Confetti untuk Animasi Bintang/Perayaan -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            900: '#090d16',
+                            800: '#111827',
+                            700: '#1e293b',
+                            accent: '#38bdf8',
+                            glow: '#818cf8',
+                            purple: '#c084fc'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2.5s infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(56, 189, 248, 0.4), 0 0 30px rgba(129, 140, 248, 0.2)' },
+                            '50%': { boxShadow: '0 0 25px rgba(56, 189, 248, 0.8), 0 0 45px rgba(192, 132, 252, 0.5)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glassmorphism & Glowing Effects */
+        body {
+            background-color: #070b14;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(192, 132, 252, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Grid Background Pattern */
+        .bg-grid-pattern {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(17, 24, 39, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .glass-card-hover:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 20px 40px -15px rgba(56, 189, 248, 0.25), 0 0 20px rgba(129, 140, 248, 0.15);
+        }
+
+        /* Glowing Buttons */
+        .btn-glow {
+            position: relative;
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%);
+            background-size: 200% 200%;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            overflow: hidden;
+        }
+
+        .btn-glow:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.65), 0 0 15px rgba(192, 132, 252, 0.5);
+        }
+
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(30deg) translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-glow:hover::after {
+            transform: rotate(30deg) translateX(100%);
+        }
+
+        /* Nav Tab Active & Hover */
+        .nav-pill {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-pill:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+            color: #38bdf8;
+            transform: translateY(-1px);
+        }
+        .nav-pill.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.25));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Menu Transition Animations */
+        .section-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(18px) scale(0.985);
+            transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .section-view.active-section {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Robot Companion Animations */
+        @keyframes robotHover {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        @keyframes robotBlink {
+            0%, 92%, 96%, 100% { transform: scaleY(1); }
+            94%, 98% { transform: scaleY(0.1); }
+        }
+        @keyframes robotWave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-25deg); }
+            75% { transform: rotate(15deg); }
+        }
+        @keyframes antennaPulse {
+            0%, 100% { fill: #38bdf8; filter: drop-shadow(0 0 4px #38bdf8); }
+            50% { fill: #f472b6; filter: drop-shadow(0 0 10px #f472b6); }
+        }
+
+        .robot-float {
+            animation: robotHover 3.5s ease-in-out infinite;
+        }
+        .robot-eye {
+            transform-origin: center;
+            animation: robotBlink 4s infinite;
+        }
+        .robot-arm-right {
+            transform-origin: 78px 58px;
+            animation: robotWave 2.5s ease-in-out infinite;
+        }
+        .robot-antenna-bulb {
+            animation: antennaPulse 2s infinite;
+        }
+
+        /* Star Burst Animation Overlay */
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            60% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+            100% { transform: scale(0.8) rotate(360deg) translateY(-60px); opacity: 0; }
+        }
+        .star-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            animation: starPop 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+
+        /* Canvas container */
+        #canvas-3d-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 1rem;
+            cursor: grab;
+        }
+        #canvas-3d-container canvas:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-grid-pattern min-h-screen flex flex-col justify-between antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#070b14]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between py-3 gap-3">
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="switchMenu('beranda')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/30 group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-microchip text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-sky-200 to-indigo-300 bg-clip-text text-transparent">
+                            MPI Sistem Komputer
+                        </h1>
+                        <p class="text-[11px] text-sky-400 font-medium tracking-wider uppercase">Informatika Interaktif 3D</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu Pills -->
+                <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto justify-start sm:justify-end">
+                    <button onclick="switchMenu('beranda')" id="nav-beranda" class="nav-pill active px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-house text-sky-400"></i> Beranda
+                    </button>
+                    <button onclick="switchMenu('tujuan')" id="nav-tujuan" class="nav-pill px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-bullseye text-purple-400"></i> Tujuan
+                    </button>
+                    <button onclick="switchMenu('materi')" id="nav-materi" class="nav-pill px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group text-emerald-400"></i> Materi
+                    </button>
+                    <button onclick="switchMenu('simulasi')" id="nav-simulasi" class="nav-pill px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-cube text-amber-400"></i> Simulasi 3D
+                    </button>
+                    <button onclick="switchMenu('kuis')" id="nav-kuis" class="nav-pill px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-trophy text-pink-400"></i> Evaluasi
+                    </button>
+                </nav>
+
+                <!-- Student Score / Star Badge -->
+                <div class="hidden md:flex items-center gap-2 bg-slate-900/90 border border-amber-500/30 px-3.5 py-1.5 rounded-full shadow-inner">
+                    <i class="fa-solid fa-star text-amber-400 animate-pulse"></i>
+                    <span class="text-xs font-semibold text-slate-300">Bintang Kamu:</span>
+                    <span id="header-stars" class="text-sm font-bold text-amber-400">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 relative">
+
+        <!-- ==================== 1. BERANDA ==================== -->
+        <section id="section-beranda" class="section-view active-section">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Left Column: Hero Text -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-400/30 text-sky-300 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                        Media Pembelajaran Interaktif Generasi Baru
+                    </div>
+                    
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white">
+                        Jelajahi Arsitektur <br/>
+                        <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                            Sistem Komputer 3D
+                        </span>
+                    </h2>
+                    
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                        Pelajari bagaimana <strong>Hardware</strong>, <strong>Software</strong>, dan <strong>Brainware</strong> saling terhubung membentuk ekosistem komputasi modern. Putar model komputer 3D secara langsung dan uji pemahamanmu bersama <em>Robo-Edu</em>!
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-2">
+                        <button onclick="switchMenu('materi')" class="btn-glow px-6 py-3.5 rounded-xl font-bold text-white text-sm sm:text-base flex items-center gap-2.5 cursor-pointer">
+                            <span>Mulai Belajar Sekarang</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        
+                        <button onclick="switchMenu('simulasi')" class="px-6 py-3.5 rounded-xl font-semibold text-sky-300 bg-slate-800/70 hover:bg-slate-800 border border-sky-500/30 hover:border-sky-400 transition-all text-sm sm:text-base flex items-center gap-2.5 cursor-pointer hover:shadow-lg hover:shadow-sky-500/20">
+                            <i class="fa-solid fa-vr-cardboard"></i>
+                            <span>Eksplorasi PC 3D</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Highlights -->
+                    <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
+                        <div class="glass-card p-3 rounded-xl text-center">
+                            <div class="text-sky-400 font-display font-bold text-xl">3 Pilar</div>
+                            <div class="text-xs text-slate-400">Komponen Utama</div>
+                        </div>
+                        <div class="glass-card p-3 rounded-xl text-center">
+                            <div class="text-purple-400 font-display font-bold text-xl">3D Live</div>
+                            <div class="text-xs text-slate-400">Visualisasi Interaktif</div>
+                        </div>
+                        <div class="glass-card p-3 rounded-xl text-center">
+                            <div class="text-amber-400 font-display font-bold text-xl">Kuis</div>
+                            <div class="text-xs text-slate-400">Evaluasi & Bintang</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive 3D Computer Stage -->
+                <div class="lg:col-span-6">
+                    <div class="glass-card p-3 sm:p-4 rounded-2xl border border-sky-500/20 relative group">
+                        <div class="flex items-center justify-between mb-2 px-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                <span class="text-xs font-mono text-slate-400 ml-2">3D_Workstation_Render.webgl</span>
+                            </div>
+                            <span class="text-[11px] bg-sky-500/20 text-sky-300 px-2.5 py-0.5 rounded-full border border-sky-400/30">
+                                <i class="fa-solid fa-hand-pointer mr-1"></i> Geser untuk Memutar
+                            </span>
+                        </div>
+                        
+                        <!-- 3D Canvas Container -->
+                        <div id="canvas-3d-container" class="w-full h-[320px] sm:h-[380px] rounded-xl bg-gradient-to-b from-slate-900 to-[#060911] relative overflow-hidden border border-white/5">
+                            <!-- Three.js renders here -->
+                        </div>
+
+                        <!-- Quick 3D Camera Controls -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 mt-3 px-1">
+                            <div class="flex gap-1.5">
+                                <button onclick="focusCamera3D('all')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-600/40 text-xs font-medium text-slate-200 border border-white/10 transition">Semua</button>
+                                <button onclick="focusCamera3D('monitor')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-600/40 text-xs font-medium text-slate-200 border border-white/10 transition">Monitor</button>
+                                <button onclick="focusCamera3D('cpu')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-600/40 text-xs font-medium text-slate-200 border border-white/10 transition">CPU Tower</button>
+                                <button onclick="focusCamera3D('keyboard')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-600/40 text-xs font-medium text-slate-200 border border-white/10 transition">Keyboard</button>
+                            </div>
+                            <button onclick="toggleAutoRotate()" id="btn-autorotate" class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-medium hover:bg-indigo-500/30 transition">
+                                <i class="fa-solid fa-rotate mr-1"></i> Auto-Putar: ON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 2. TUJUAN PEMBELAJARAN ==================== -->
+        <section id="section-tujuan" class="section-view">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-purple-400">Capaian & Kompetensi</span>
+                    <h2 class="font-display text-2xl sm:text-4xl font-bold text-white">Tujuan Pembelajaran</h2>
+                    <p class="text-slate-400 text-sm sm:text-base">Setelah mempelajari MPI ini, siswa diharapkan mampu menguasai kompetensi berikut:</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
+                    <div class="glass-card glass-card-hover p-6 rounded-2xl flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 text-sky-400 font-bold text-lg">
+                            01
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-white mb-1">Mengidentifikasi Komponen Sistem</h3>
+                            <p class="text-sm text-slate-300 leading-relaxed">Menjelaskan pengertian serta membedakan fungsi utama antara Hardware (Perangkat Keras), Software (Perangkat Lunak), dan Brainware (Pengguna).</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card glass-card-hover p-6 rounded-2xl flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-400 font-bold text-lg">
+                            02
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-white mb-1">Klasifikasi Perangkat Keras</h3>
+                            <p class="text-sm text-slate-300 leading-relaxed">Mengelompokkan perangkat keras ke dalam unit Input (Masukan), Process (Pemrosesan), Output (Keluaran), dan Storage (Penyimpanan).</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card glass-card-hover p-6 rounded-2xl flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-400 font-bold text-lg">
+                            03
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-white mb-1">Memahami Siklus Pemrosesan Data</h3>
+                            <p class="text-sm text-slate-300 leading-relaxed">Menganalisis alur kerja komputer mulai dari data mentah diinputkan, diolah oleh CPU & RAM, hingga menjadi informasi yang berguna.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card glass-card-hover p-6 rounded-2xl flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-400 font-bold text-lg">
+                            04
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-white mb-1">Evaluasi & Pemecahan Masalah</h3>
+                            <p class="text-sm text-slate-300 leading-relaxed">Mendiagnosis peran tiap perangkat dalam studi kasus nyata melalui simulasi interaktif dan kuis evaluasi mandiri.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center pt-4">
+                    <button onclick="switchMenu('materi')" class="btn-glow px-6 py-3 rounded-xl font-bold text-white text-sm flex items-center gap-2 cursor-pointer">
+                        <span>Lanjut ke Materi Inti</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3. MATERI PEMBELAJARAN ==================== -->
+        <section id="section-materi" class="section-view">
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Modul Pembelajaran</span>
+                        <h2 class="font-display text-2xl sm:text-3xl font-bold text-white mt-1">3 Pilar Utama Sistem Komputer</h2>
+                    </div>
+                    
+                    <!-- Sub-tab Filter Materi -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="selectMateriTab('hardware')" id="tab-hardware" class="materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-sky-500 text-white shadow-lg shadow-sky-500/30 transition cursor-pointer">
+                            <i class="fa-solid fa-microchip mr-1.5"></i> 1. Hardware
+                        </button>
+                        <button onclick="selectMateriTab('software')" id="tab-software" class="materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                            <i class="fa-solid fa-code mr-1.5"></i> 2. Software
+                        </button>
+                        <button onclick="selectMateriTab('brainware')" id="tab-brainware" class="materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                            <i class="fa-solid fa-user-astronaut mr-1.5"></i> 3. Brainware
+                        </button>
+                        <button onclick="selectMateriTab('siklus')" id="tab-siklus" class="materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
+                            <i class="fa-solid fa-arrows-spin mr-1.5"></i> 4. Siklus IPOS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Area for Materi -->
+                <div id="materi-content-box" class="min-h-[340px]">
+                    <!-- Filled via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 4. SIMULASI & EKSPLORASI KOMPONEN ==================== -->
+        <section id="section-simulasi" class="section-view">
+            <div class="space-y-6">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Laboratorium Virtual</span>
+                    <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">Klasifikasi Perangkat Interaktif</h2>
+                    <p class="text-sm text-slate-300">Klik perangkat di bawah ini untuk menguji apakah perangkat tersebut termasuk <strong>Input</strong>, <strong>Process</strong>, <strong>Output</strong>, atau <strong>Storage</strong>!</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Left: Device Cards -->
+                    <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3.5" id="device-grid">
+                        <!-- Generated by JS -->
+                    </div>
+
+                    <!-- Right: Inspector & Mini Challenge -->
+                    <div class="lg:col-span-5 glass-card p-6 rounded-2xl border border-amber-500/20 space-y-5">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass-chart text-amber-400"></i>
+                                Inspektur Perangkat
+                            </h3>
+                            <span id="sim-progress" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                0 / 6 Teridentifikasi
+                            </span>
+                        </div>
+
+                        <div id="inspector-detail" class="space-y-4">
+                            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/5 text-center space-y-2">
+                                <i class="fa-solid fa-hand-pointer text-3xl text-sky-400 animate-bounce"></i>
+                                <p class="text-sm text-slate-300">Pilih salah satu kartu perangkat di sebelah kiri untuk melihat spesifikasi dan menebak kategorinya.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 5. EVALUASI / KUIS INTERAKTIF ==================== -->
+        <section id="section-kuis" class="section-view">
+            <div class="max-w-3xl mx-auto">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl border border-pink-500/20 relative overflow-hidden">
+                    <!-- Decorative glow -->
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-sky-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Quiz Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-pink-400">Uji Kompetensi</span>
+                            <h2 class="font-display text-xl sm:text-2xl font-bold text-white">Kuis Sistem Komputer</h2>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-white/10 text-xs font-semibold text-slate-300">
+                                Soal <span id="quiz-current-num" class="text-sky-400 font-bold">1</span> / <span id="quiz-total-num">5</span>
+                            </div>
+                            <div class="px-3.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-star"></i>
+                                <span id="quiz-score-display">0</span> Poin
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-6">
+                        <div id="quiz-progress-bar" class="h-full bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 transition-all duration-500" style="width: 20%"></div>
+                    </div>
+
+                    <!-- Quiz Body -->
+                    <div id="quiz-body" class="space-y-6">
+                        <h3 id="quiz-question" class="text-lg sm:text-xl font-semibold text-white leading-relaxed">
+                            Memuat pertanyaan...
+                        </h3>
+
+                        <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                            <!-- Options rendered here -->
+                        </div>
+
+                        <!-- Feedback Box -->
+                        <div id="quiz-feedback" class="hidden p-4 rounded-xl border text-sm font-medium transition-all">
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="flex justify-end pt-2">
+                            <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden btn-glow px-6 py-3 rounded-xl font-bold text-white text-sm flex items-center gap-2 cursor-pointer">
+                                <span>Soal Selanjutnya</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Result Screen (Hidden initially) -->
+                    <div id="quiz-result" class="hidden text-center py-6 space-y-6">
+                        <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 animate-bounce">
+                            <i class="fa-solid fa-crown text-4xl text-white"></i>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-white">Evaluasi Selesai!</h3>
+                            <p id="quiz-result-message" class="text-slate-300 text-sm sm:text-base max-w-md mx-auto">
+                                Luar biasa! Kamu telah menyelesaikan seluruh tantangan dengan sangat baik.
+                            </p>
+                        </div>
+
+                        <div class="inline-flex items-center gap-6 px-8 py-4 rounded-2xl bg-slate-900/90 border border-white/10">
+                            <div class="text-center">
+                                <div class="text-xs text-slate-400 uppercase">Skor Akhir</div>
+                                <div id="final-score" class="font-display text-3xl font-extrabold text-sky-400">100</div>
+                            </div>
+                            <div class="h-10 w-px bg-white/10"></div>
+                            <div class="text-center">
+                                <div class="text-xs text-slate-400 uppercase">Bintang Diraih</div>
+                                <div id="final-stars" class="font-display text-3xl font-extrabold text-amber-400 flex items-center justify-center gap-1">
+                                    <span>5</span> <i class="fa-solid fa-star text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="restartQuiz()" class="btn-glow px-6 py-3 rounded-xl font-bold text-white text-sm inline-flex items-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>Ulangi Evaluasi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== FLOATING ANIMATED ROBOT COMPANION ==================== -->
+    <div class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end max-w-[290px] sm:max-w-xs">
+        <!-- Speech Bubble -->
+        <div id="robot-bubble" class="glass-card p-3.5 rounded-2xl rounded-br-none border border-sky-400/40 mb-2 shadow-xl transition-all duration-300 transform origin-bottom-right">
+            <div class="flex items-start justify-between gap-2 mb-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    Robo-Edu AI
+                </span>
+                <button onclick="toggleRobotBubble()" class="text-slate-400 hover:text-white text-xs">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </div>
+            <p id="robot-text" class="text-xs sm:text-sm text-slate-200 leading-snug">
+                Halo! 👋 Aku <strong>Robo-Edu</strong>. Putar komputer 3D di layar atau klik menu di atas untuk mulai belajar!
+            </p>
+        </div>
+
+        <!-- Animated SVG Robot Character -->
+        <button onclick="pokeRobot()" title="Klik Robo-Edu untuk tips belajar!" class="robot-float group relative focus:outline-none cursor-pointer">
+            <!-- Glow Aura behind Robot -->
+            <div class="absolute inset-0 bg-sky-500/30 rounded-full blur-xl group-hover:bg-purple-500/40 transition-colors"></div>
+            
+            <svg width="82" height="82" viewBox="0 0 100 100" class="relative drop-shadow-2xl">
+                <!-- Antenna -->
+                <line x1="50" y1="18" x2="50" y2="8" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="50" cy="7" r="4.5" class="robot-antenna-bulb"/>
+                
+                <!-- Left Ear / Headset -->
+                <rect x="16" y="34" width="6" height="16" rx="3" fill="#38bdf8"/>
+                <!-- Right Ear / Headset -->
+                <rect x="78" y="34" width="6" height="16" rx="3" fill="#38bdf8"/>
+
+                <!-- Robot Head -->
+                <rect x="22" y="18" width="56" height="42" rx="14" fill="url(#headGrad)" stroke="#38bdf8" stroke-width="2"/>
+                
+                <!-- Visor Screen -->
+                <rect x="28" y="25" width="44" height="26" rx="8" fill="#090d16"/>
+                
+                <!-- Glowing Eyes -->
+                <g class="robot-eye">
+                    <circle cx="40" cy="37" r="5" fill="#38bdf8"/>
+                    <circle cx="41.5" cy="35.5" r="1.5" fill="#ffffff"/>
+                    
+                    <circle cx="60" cy="37" r="5" fill="#38bdf8"/>
+                    <circle cx="61.5" cy="35.5" r="1.5" fill="#ffffff"/>
+                </g>
+
+                <!-- Cute Smile -->
+                <path d="M 45 44 Q 50 48 55 44" stroke="#38bdf8" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+                <!-- Robot Body -->
+                <path d="M 32 63 L 68 63 L 63 85 C 62 89 58 91 50 91 C 42 91 38 89 37 85 Z" fill="url(#bodyGrad)" stroke="#818cf8" stroke-width="2"/>
+                
+                <!-- Chest Core Light -->
+                <circle cx="50" cy="74" r="5.5" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+                <circle cx="50" cy="74" r="2.5" fill="#38bdf8" class="animate-ping"/>
+
+                <!-- Left Arm -->
+                <path d="M 28 65 Q 16 72 22 82" stroke="#94a3b8" stroke-width="5" fill="none" stroke-linecap="round"/>
+                
+                <!-- Waving Right Arm -->
+                <g class="robot-arm-right">
+                    <path d="M 72 65 Q 86 58 84 46" stroke="#94a3b8" stroke-width="5" fill="none" stroke-linecap="round"/>
+                    <circle cx="84" cy="45" r="4" fill="#38bdf8"/>
+                </g>
+
+                <!-- Thruster Flame -->
+                <path d="M 43 92 L 50 100 L 57 92 Z" fill="#f59e0b" opacity="0.85"/>
+
+                <defs>
+                    <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#1e293b"/>
+                        <stop offset="100%" stop-color="#0f172a"/>
+                    </linearGradient>
+                    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#334155"/>
+                        <stop offset="100%" stop-color="#1e293b"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-[#050810]/90 py-4 text-center text-xs text-slate-500">
+        <p>MPI Sistem Komputer Interaktif • Dilengkapi Visualisasi 3D & Asisten Belajar Cerdas</p>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // ==================== 1. STATE & DATA ====================
+        let totalStars = 0;
+        let currentMateri = 'hardware';
+        let identifiedDevices = new Set();
+
+        const robotMessages = {
+            beranda: "Selamat datang! 👋 Coba geser ilustrasi komputer 3D di samping untuk melihat bagian-bagiannya dari berbagai sudut.",
+            tujuan: "Ini adalah target belajar kita hari ini. Yuk kuasai semuanya agar kamu makin jago Informatika! 🎯",
+            materi: "Klik tab Hardware, Software, Brainware, atau Siklus IPOS untuk mendalami setiap pilar sistem komputer! 📚",
+            simulasi: "Waktunya praktik! Klik kartu perangkat keras di sebelah kiri dan tentukan kategori fungsinya. 💡",
+            kuis: "Fokus ya! Setiap jawaban benar akan memberimu ledakan Bintang Prestasi! ⭐✨"
+        };
+
+        const robotTips = [
+            "Tahukah kamu? CPU sering disebut sebagai 'otak' dari komputer!",
+            "RAM bersifat volatile, artinya data akan hilang saat listrik padam.",
+            "Tanpa Brainware (manusia), komputer secanggih apa pun tidak bisa beroperasi sendiri.",
+            "SSD jauh lebih cepat daripada HDD karena tidak memiliki piringan mekanis yang berputar.",
+            "Sistem Operasi seperti Windows, Linux, dan macOS adalah jembatan antara pengguna dan hardware."
+        ];
+
+        // Materi Data
+        const materiData = {
+            hardware: {
+                title: "Hardware (Perangkat Keras)",
+                subtitle: "Komponen fisik komputer yang dapat dilihat dan disentuh secara langsung.",
+                color: "sky",
+                cards: [
+                    {
+                        icon: "fa-keyboard",
+                        name: "Input Device (Masukan)",
+                        desc: "Berfungsi memasukkan data atau perintah dari pengguna ke dalam komputer.",
+                        examples: "Keyboard, Mouse, Scanner, Microphone, Webcam"
+                    },
+                    {
+                        icon: "fa-microchip",
+                        name: "Process Device (Pemroses)",
+                        desc: "Mengolah data mentah yang masuk menjadi informasi yang berguna.",
+                        examples: "CPU (Processor), RAM, Motherboard, GPU (VGA Card)"
+                    },
+                    {
+                        icon: "fa-desktop",
+                        name: "Output Device (Keluaran)",
+                        desc: "Menampilkan hasil pemrosesan data dalam bentuk visual, suara, atau cetakan.",
+                        examples: "Monitor, Printer, Speaker, Proyektor"
+                    },
+                    {
+                        icon: "fa-hard-drive",
+                        name: "Storage Device (Penyimpanan)",
+                        desc: "Menyimpan data dan program secara permanen maupun sementara.",
+                        examples: "SSD, Harddisk (HDD), Flashdisk, Cloud Storage"
+                    }
+                ]
+            },
+            software: {
+                title: "Software (Perangkat Lunak)",
+                subtitle: "Sekumpulan instruksi atau program digital yang mengatur kerja perangkat keras.",
+                color: "purple",
+                cards: [
+                    {
+                        icon: "fa-windows",
+                        name: "Sistem Operasi (OS)",
+                        desc: "Perangkat lunak utama yang mengelola seluruh sumber daya hardware dan menjalankan aplikasi.",
+                        examples: "Windows 11, macOS, Linux Ubuntu, Android, iOS"
+                    },
+                    {
+                        icon: "fa-window-restore",
+                        name: "Software Aplikasi",
+                        desc: "Program yang dibuat untuk membantu tugas spesifik pengguna sehari-hari.",
+                        examples: "Microsoft Office, Google Chrome, Adobe Photoshop, VS Code"
+                    },
+                    {
+                        icon: "fa-terminal",
+                        name: "Bahasa Pemrograman",
+                        desc: "Alat bagi programmer untuk menulis kode instruksi pembuatan aplikasi.",
+                        examples: "Python, JavaScript, C++, Java, HTML/CSS"
+                    },
+                    {
+                        icon: "fa-shield-halved",
+                        name: "Software Utilitas",
+                        desc: "Program bantu untuk pemeliharaan, keamanan, dan optimalisasi sistem komputer.",
+                        examples: "Antivirus, Disk Defragmenter, WinRAR, Backup Tools"
+                    }
+                ]
+            },
+            brainware: {
+                title: "Brainware (Pengguna)",
+                subtitle: "Manusia yang mengoperasikan, mengelola, serta mengembangkan sistem komputer.",
+                color: "emerald",
+                cards: [
+                    {
+                        icon: "fa-user",
+                        name: "Operator / End-User",
+                        desc: "Pengguna umum yang mengoperasikan aplikasi komputer untuk pekerjaan sehari-hari.",
+                        examples: "Siswa, Admin Kantor, Desainer Grafis, Kasir"
+                    },
+                    {
+                        icon: "fa-laptop-code",
+                        name: "Programmer / Developer",
+                        desc: "Tenaga ahli yang merancang dan menulis kode program atau aplikasi.",
+                        examples: "Web Developer, Mobile App Developer, Game Developer"
+                    },
+                    {
+                        icon: "fa-sitemap",
+                        name: "System Analyst",
+                        desc: "Analis yang merancang arsitektur sistem dan memecahkan kebutuhan teknologi organisasi.",
+                        examples: "IT Architect, Business System Analyst"
+                    },
+                    {
+                        icon: "fa-server",
+                        name: "Administrator Sistem & Jaringan",
+                        desc: "Bertanggung jawab menjaga keamanan server, jaringan, dan database tetap berjalan lancar.",
+                        examples: "Network Engineer, Database Admin, Cyber Security"
+                    }
+                ]
+            },
+            siklus: {
+                title: "Siklus Pemrosesan Data (IPOS)",
+                subtitle: "Bagaimana komputer bekerja mengubah data mentah menjadi informasi bermakna.",
+                color: "amber",
+                isCycle: true
+            }
+        };
+
+        // Simulation Devices Data
+        const simulationDevices = [
+            { id: 'kbd', name: 'Keyboard Mekanik', icon: 'fa-keyboard', category: 'Input', desc: 'Mengirimkan sinyal ketikan karakter dan perintah tombol ke CPU.' },
+            { id: 'cpu', name: 'Processor (CPU)', icon: 'fa-microchip', category: 'Process', desc: 'Otak komputer yang mengeksekusi instruksi aritmatika dan logika.' },
+            { id: 'mon', name: 'Monitor LED', icon: 'fa-desktop', category: 'Output', desc: 'Menampilkan antarmuka grafis hasil pengolahan kartu grafis (GPU).' },
+            { id: 'ssd', name: 'NVMe SSD 1TB', icon: 'fa-hard-drive', category: 'Storage', desc: 'Menyimpan sistem operasi dan file pengguna secara permanen berkecepatan tinggi.' },
+            { id: 'mic', name: 'Microphone Kondensor', icon: 'fa-microphone', category: 'Input', desc: 'Menangkap gelombang suara analog dan mengubahnya menjadi data audio digital.' },
+            { id: 'prt', name: 'Printer Laser', icon: 'fa-print', category: 'Output', desc: 'Mencetak dokumen digital dari komputer ke media fisik seperti kertas.' }
+        ];
+
+        // Quiz Questions Data
+        const quizQuestions = [
+            {
+                question: "Komponen sistem komputer yang bertindak sebagai 'otak' untuk memproses seluruh instruksi dan perhitungan data adalah...",
+                options: ["Harddisk (HDD)", "Central Processing Unit (CPU)", "Monitor LED", "Power Supply"],
+                correct: 1,
+                explanation: "Tepat! CPU (Central Processing Unit) bertugas mengeksekusi perintah dan mengolah data utama."
+            },
+            {
+                question: "Manakah di bawah ini yang termasuk dalam kelompok perangkat lunak (Software) Sistem Operasi?",
+                options: ["Microsoft Word", "Google Chrome", "Linux Ubuntu", "Adobe Premiere"],
+                correct: 2,
+                explanation: "Benar! Linux Ubuntu adalah Sistem Operasi yang mengelola hardware, sedangkan lainnya adalah aplikasi."
+            },
+            {
+                question: "Urutan siklus pemrosesan data pada sistem komputer yang paling tepat adalah...",
+                options: [
+                    "Output → Process → Input → Storage",
+                    "Input → Process → Output (dengan Storage)",
+                    "Process → Input → Storage → Output",
+                    "Storage → Output → Process → Input"
+                ],
+                correct: 1,
+                explanation: "Hebat! Data dimasukkan (Input), diolah (Process), lalu ditampilkan (Output) atau disimpan (Storage)."
+            },
+            {
+                question: "Seorang tenaga ahli yang bertugas merancang dan menulis kode program aplikasi disebut sebagai...",
+                options: ["Operator", "Hardware Engineer", "Programmer", "Teknisi Jaringan"],
+                correct: 2,
+                explanation: "Sempurna! Programmer adalah bagian dari Brainware yang membuat perangkat lunak menggunakan bahasa pemrograman."
+            },
+            {
+                question: "Perangkat yang berfungsi menyimpan data secara sementara saat komputer menyala dan akan terhapus ketika daya dimatikan adalah...",
+                options: ["RAM (Random Access Memory)", "Solid State Drive (SSD)", "Flashdisk USB", "Compact Disc (CD)"],
+                correct: 0,
+                explanation: "Luar biasa! RAM bersifat volatile sehingga hanya menyimpan data aktif selama komputer menyala."
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        // ==================== 2. NAVIGATION & TRANSITIONS ====================
+        function switchMenu(menuId) {
+            // Update Nav Pills
+            document.querySelectorAll('.nav-pill').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-slate-300');
+            });
+            const activeBtn = document.getElementById('nav-' + menuId);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.remove('text-slate-300');
+            }
+
+            // Smooth Section Transition
+            document.querySelectorAll('.section-view').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+
+            const targetSection = document.getElementById('section-' + menuId);
+            if (targetSection) {
+                // Small timeout allows display:block to trigger CSS transition smoothly
+                setTimeout(() => {
+                    targetSection.classList.add('active-section');
+                    if (menuId === 'beranda' && renderer) {
+                        onWindowResize();
+                    }
+                }, 30);
+            }
+
+            // Update Robot Companion Message
+            if (robotMessages[menuId]) {
+                setRobotMessage(robotMessages[menuId]);
+            }
+        }
+
+        // ==================== 3. ROBOT COMPANION INTERACTION ====================
+        let bubbleVisible = true;
+        function setRobotMessage(msg) {
+            const bubble = document.getElementById('robot-bubble');
+            const textEl = document.getElementById('robot-text');
+            bubble.classList.remove('hidden');
+            bubbleVisible = true;
+            
+            textEl.style.opacity = '0';
+            setTimeout(() => {
+                textEl.innerHTML = msg;
+                textEl.style.opacity = '1';
+            }, 150);
+        }
+
+        function toggleRobotBubble() {
+            const bubble = document.getElementById('robot-bubble');
+            bubbleVisible = !bubbleVisible;
+            if (bubbleVisible) {
+                bubble.classList.remove('hidden');
+            } else {
+                bubble.classList.add('hidden');
+            }
+        }
+
+        function pokeRobot() {
+            const randomTip = robotTips[Math.floor(Math.random() * robotTips.length)];
+            setRobotMessage("💡 <strong>Tips Robo-Edu:</strong> " + randomTip);
+            triggerStarBurst(window.innerWidth - 70, window.innerHeight - 90, 5);
+        }
+
+        // ==================== 4. STAR ANIMATION & REWARD SYSTEM ====================
+        function addStars(amount, x, y) {
+            totalStars += amount;
+            const headerStars = document.getElementById('header-stars');
+            headerStars.textContent = totalStars;
+            headerStars.parentElement.classList.add('scale-110', 'border-amber-400');
+            setTimeout(() => {
+                headerStars.parentElement.classList.remove('scale-110', 'border-amber-400');
+            }, 400);
+
+            triggerStarBurst(x || window.innerWidth / 2, y || window.innerHeight / 2, 12);
+        }
+
+        function triggerStarBurst(originX, originY, count = 10) {
+            // Custom SVG Floating Stars
+            const colors = ['#fbbf24', '#38bdf8', '#c084fc', '#34d399'];
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-particle';
+                const angle = (Math.PI * 2 * i) / count;
+                const distance = 40 + Math.random() * 80;
+                const tx = originX + Math.cos(angle) * distance;
+                const ty = originY + Math.sin(angle) * distance;
+                const color = colors[i % colors.length];
+                const size = 16 + Math.random() * 14;
+
+                star.style.left = tx + 'px';
+                star.style.top = ty + 'px';
+                star.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+                document.body.appendChild(star);
+
+                setTimeout(() => star.remove(), 1150);
+            }
+
+            // Canvas Confetti Star Burst
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 35,
+                    spread: 70,
+                    origin: { 
+                        x: Math.min(Math.max(originX / window.innerWidth, 0.1), 0.9), 
+                        y: Math.min(Math.max(originY / window.innerHeight, 0.1), 0.9) 
+                    },
+                    shapes: ['star'],
+                    colors: ['#fbbf24', '#38bdf8', '#a855f7']
+                });
+            }
+        }
+
+        // ==================== 5. MATERI RENDERER ====================
+        function selectMateriTab(tabKey) {
+            currentMateri = tabKey;
+            
+            // Update Tab Styles
+            document.querySelectorAll('.materi-tab').forEach(btn => {
+                btn.className = 'materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer';
+            });
+            const activeTab = document.getElementById('tab-' + tabKey);
+            activeTab.className = 'materi-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/30 transition cursor-pointer';
+
+            const box = document.getElementById('materi-content-box');
+            const data = materiData[tabKey];
+
+            if (data.isCycle) {
+                box.innerHTML = `
+                    <div class="glass-card p-6 sm:p-8 rounded-2xl border border-amber-500/20 space-y-6">
+                        <div class="text-center max-w-2xl mx-auto">
+                            <h3 class="font-display text-2xl font-bold text-amber-400">${data.title}</h3>
+                            <p class="text-slate-300 text-sm mt-1">${data.subtitle}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center pt-2">
+                            <div class="glass-card glass-card-hover p-5 rounded-2xl border-t-4 border-sky-400 text-center space-y-2">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                </div>
+                                <h4 class="font-bold text-white">1. INPUT</h4>
+                                <p class="text-xs text-slate-300">Data mentah dimasukkan pengguna melalui keyboard, mouse, atau sensor.</p>
+                            </div>
+
+                            <div class="glass-card glass-card-hover p-5 rounded-2xl border-t-4 border-purple-400 text-center space-y-2">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-gears"></i>
+                                </div>
+                                <h4 class="font-bold text-white">2. PROCESS</h4>
+                                <p class="text-xs text-slate-300">CPU dan RAM mengolah data berdasarkan instruksi program.</p>
+                            </div>
+
+                            <div class="glass-card glass-card-hover p-5 rounded-2xl border-t-4 border-emerald-400 text-center space-y-2">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-desktop"></i>
+                                </div>
+                                <h4 class="font-bold text-white">3. OUTPUT</h4>
+                                <p class="text-xs text-slate-300">Hasil pengolahan ditampilkan di layar monitor, suara speaker, atau cetakan.</p>
+                            </div>
+
+                            <div class="glass-card glass-card-hover p-5 rounded-2xl border-t-4 border-amber-400 text-center space-y-2">
+                                <div class="w-12 h-12 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-database"></i>
+                                </div>
+                                <h4 class="font-bold text-white">4. STORAGE</h4>
+                                <p class="text-xs text-slate-300">Informasi disimpan ke SSD/Harddisk agar dapat dibuka kembali kapan saja.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const cardsHtml = data.cards.map(c => `
+                <div class="glass-card glass-card-hover p-5 rounded-2xl space-y-3 border border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-${data.color}-500/20 border border-${data.color}-400/30 flex items-center justify-center text-${data.color}-400 text-lg">
+                            <i class="fa-solid ${c.icon}"></i>
+                        </div>
+                        <h4 class="font-display font-bold text-base sm:text-lg text-white">${c.name}</h4>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">${c.desc}</p>
+                    <div class="pt-2 border-t border-white/5">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Contoh:</span>
+                        <p class="text-xs font-medium text-${data.color}-300 mt-0.5">${c.examples}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            box.innerHTML = `
+                <div class="space-y-5">
+                    <div class="glass-card p-5 rounded-2xl border-l-4 border-${data.color}-400">
+                        <h3 class="font-display text-xl sm:text-2xl font-bold text-white">${data.title}</h3>
+                        <p class="text-sm text-slate-300 mt-1">${data.subtitle}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== 6. SIMULATION / LAB INTERAKTIF ====================
+        function initSimulation() {
+            const grid = document.getElementById('device-grid');
+            grid.innerHTML = simulationDevices.map(dev => `
+                <button onclick="inspectDevice('${dev.id}')" id="dev-card-${dev.id}" class="glass-card glass-card-hover p-5 rounded-2xl text-center space-y-3 border border-white/10 cursor-pointer flex flex-col items-center justify-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-800/90 group-hover:bg-sky-500/20 border border-white/10 group-hover:border-sky-400/40 flex items-center justify-center text-2xl text-sky-400 transition-all">
+                        <i class="fa-solid ${dev.icon}"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm text-white">${dev.name}</div>
+                        <div id="badge-${dev.id}" class="text-[11px] text-slate-400 mt-1">Klik untuk identifikasi</div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function inspectDevice(devId) {
+            const dev = simulationDevices.find(d => d.id === devId);
+            if (!dev) return;
+
+            const panel = document.getElementById('inspector-detail');
+            const isSolved = identifiedDevices.has(dev.id);
+
+            panel.innerHTML = `
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-sky-500/30 space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 text-xl">
+                            <i class="fa-solid ${dev.icon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-base text-white">${dev.name}</h4>
+                            <span class="text-xs text-sky-300">Pilih kategori fungsi yang tepat:</span>
+                        </div>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${dev.desc}</p>
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        ${['Input', 'Process', 'Output', 'Storage'].map(cat => `
+                            <button onclick="checkDeviceCategory('${dev.id}', '${cat}', event)" class="py-2.5 px-3 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                                isSolved && dev.category === cat 
+                                ? 'bg-emerald-500/30 border-emerald-400 text-emerald-200' 
+                                : 'bg-slate-800 hover:bg-sky-600/30 border-white/10 hover:border-sky-400 text-white'
+                            }">
+                                ${cat} Device
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="sim-feedback" class="text-xs font-semibold pt-1">
+                        ${isSolved ? `<span class="text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i> Teridentifikasi sebagai ${dev.category} Device!</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkDeviceCategory(devId, chosenCat, event) {
+            const dev = simulationDevices.find(d => d.id === devId);
+            const fb = document.getElementById('sim-feedback');
+
+            if (dev.category === chosenCat) {
+                fb.innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-star mr-1"></i> Tepat sekali! ${dev.name} adalah ${chosenCat} Device.</span>`;
+                if (!identifiedDevices.has(dev.id)) {
+                    identifiedDevices.add(dev.id);
+                    document.getElementById('sim-progress').textContent = `${identifiedDevices.size} / ${simulationDevices.length} Teridentifikasi`;
+                    const badge = document.getElementById('badge-' + dev.id);
+                    badge.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check"></i> ${dev.category}</span>`;
+                    document.getElementById('dev-card-' + dev.id).classList.add('border-emerald-500/40');
+                    
+                    addStars(1, event.clientX, event.clientY);
+                    setRobotMessage(`Keren! 🌟 <strong>${dev.name}</strong> memang termasuk <strong>${chosenCat} Device</strong>. Kamu dapat +1 Bintang!`);
+                }
+            } else {
+                fb.innerHTML = `<span class="text-rose-400"><i class="fa-solid fa-circle-xmark mr-1"></i> Kurang tepat, coba perhatikan fungsi utamanya lagi!</span>`;
+                setRobotMessage(`Hmm, coba pikirkan lagi fungsi utama dari <strong>${dev.name}</strong> ya! 🤔`);
+            }
+        }
+
+        // ==================== 7. QUIZ / EVALUASI LOGIC ====================
+        function loadQuizQuestion() {
+            const q = quizQuestions[currentQuizIdx];
+            quizAnswered = false;
+
+            document.getElementById('quiz-current-num').textContent = currentQuizIdx + 1;
+            document.getElementById('quiz-total-num').textContent = quizQuestions.length;
+            document.getElementById('quiz-progress-bar').style.width = `${((currentQuizIdx + 1) / quizQuestions.length) * 100}%`;
+            
+            document.getElementById('quiz-question').textContent = q.question;
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const letters = ['A', 'B', 'C', 'D'];
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = q.options.map((opt, idx) => `
+                <button onclick="selectQuizOption(${idx}, event)" id="opt-btn-${idx}" class="w-full text-left p-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-white/10 hover:border-sky-400/50 transition-all flex items-center gap-3.5 group cursor-pointer">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-sky-500 group-hover:text-white text-sky-400 font-bold text-sm flex items-center justify-center shrink-0 transition-colors">
+                        ${letters[idx]}
+                    </span>
+                    <span class="text-sm sm:text-base text-slate-200 font-medium">${opt}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectQuizOption(selectedIdx, event) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const q = quizQuestions[currentQuizIdx];
+            const fb = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('quiz-next-btn');
+
+            // Disable all buttons & highlight correct/wrong
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById('opt-btn-' + idx);
+                btn.classList.remove('hover:bg-slate-800', 'hover:border-sky-400/50');
+                if (idx === q.correct) {
+                    btn.classList.add('bg-emerald-500/20', 'border-emerald-400');
+                } else if (idx === selectedIdx && selectedIdx !== q.correct) {
+                    btn.classList.add('bg-rose-500/20', 'border-rose-400');
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            fb.classList.remove('hidden', 'bg-emerald-500/15', 'border-emerald-500/40', 'text-emerald-200', 'bg-rose-500/15', 'border-rose-500/40', 'text-rose-200');
+
+            if (selectedIdx === q.correct) {
+                quizScore += 20;
+                document.getElementById('quiz-score-display').textContent = quizScore;
+                fb.classList.add('bg-emerald-500/15', 'border-emerald-500/40', 'text-emerald-200');
+                fb.innerHTML = `<div class="flex items-center gap-2 font-bold text-emerald-400 mb-1"><i class="fa-solid fa-star"></i> Jawaban Benar! (+20 Poin & +1 Bintang)</div><p>${q.explanation}</p>`;
+                
+                // Trigger Star Explosion!
+                addStars(1, event.clientX, event.clientY);
+                setRobotMessage("Yey! Jawabanmu benar! ⭐✨ Terus pertahankan!");
+            } else {
+                fb.classList.add('bg-rose-500/15', 'border-rose-500/40', 'text-rose-200');
+                fb.innerHTML = `<div class="flex items-center gap-2 font-bold text-rose-400 mb-1"><i class="fa-solid fa-circle-exclamation"></i> Jawaban Kurang Tepat</div><p>${q.explanation}</p>`;
+                setRobotMessage("Jangan menyerah! Baca penjelasannya dan lanjut ke soal berikutnya ya! 💪");
+            }
+
+            nextBtn.classList.remove('hidden');
+            if (currentQuizIdx === quizQuestions.length - 1) {
+                nextBtn.innerHTML = `<span>Lihat Hasil Akhir</span> <i class="fa-solid fa-flag-checkered"></i>`;
+            } else {
+                nextBtn.innerHTML = `<span>Soal Selanjutnya</span> <i class="fa-solid fa-arrow-right"></i>`;
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuizIdx < quizQuestions.length - 1) {
+                currentQuizIdx++;
+                loadQuizQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-body').classList.add('hidden');
+            const resBox = document.getElementById('quiz-result');
+            resBox.classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = quizScore;
+            const earnedStars = quizScore / 20;
+            document.getElementById('final-stars').innerHTML = `<span>${earnedStars}</span> <i class="fa-solid fa-star text-xl"></i>`;
+
+            if (quizScore >= 80) {
+                document.getElementById('quiz-result-message').textContent = "Luar biasa! Pemahamanmu tentang arsitektur Sistem Komputer sangat mengagumkan.";
+                triggerStarBurst(window.innerWidth / 2, window.innerHeight / 2, 20);
+                setRobotMessage("Selamat! Kamu lulus evaluasi dengan predikat memuaskan! 🏆🎉");
+            } else {
+                document.getElementById('quiz-result-message').textContent = "Bagus! Kamu bisa mengulang kuis atau membaca kembali materi untuk meraih skor sempurna.";
+                setRobotMessage("Kerja bagus! Kamu bisa coba lagi kapan saja untuk mengumpulkan semua bintang! ⭐");
+            }
+        }
+
+        function restartQuiz() {
+            currentQuizIdx = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score-display').textContent = '0';
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-body').classList.remove('hidden');
+            loadQuizQuestion();
+        }
+
+        // ==================== 8. THREE.JS 3D COMPUTER ILLUSTRATION ====================
+        let scene, camera, renderer, computerGroup;
+        let isAutoRotating = true;
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let targetRotation = { x: 0.15, y: -0.45 };
+        let targetCameraPos = { x: 0, y: 1.8, z: 6.2 };
+
+        function init3DComputer() {
+            const container = document.getElementById('canvas-3d-container');
+            if (!container || typeof THREE === 'undefined') return;
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(targetCameraPos.x, targetCameraPos.y, targetCameraPos.z);
+            camera.lookAt(0, 0.6, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
+            dirLight.position.set(5, 8, 6);
+            scene.add(dirLight);
+
+            const purpleLight = new THREE.PointLight(0xc084fc, 1.8, 12);
+            purpleLight.position.set(-4, 3, 3);
+            scene.add(purpleLight);
+
+            const cyanLight = new THREE.PointLight(0x0ea5e9, 1.5, 10);
+            cyanLight.position.set(3, 1, -2);
+            scene.add(cyanLight);
+
+            // Group holding the entire workstation
+            computerGroup = new THREE.Group();
+            scene.add(computerGroup);
+
+            // Materials
+            const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.7 });
+            const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.8 });
+            const glassMat = new THREE.MeshPhysicalMaterial({ 
+                color: 0x38bdf8, transparent: true, opacity: 0.25, roughness: 0.1, metalness: 0.1 
+            });
+            const neonBlueMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            const neonPurpleMat = new THREE.MeshBasicMaterial({ color: 0xc084fc });
+
+            // 1. Desk Platform Base
+            const deskGeo = new THREE.CylinderGeometry(2.7, 2.8, 0.14, 48);
+            const deskMesh = new THREE.Mesh(deskGeo, chassisMat);
+            deskMesh.position.y = -0.07;
+            computerGroup.add(deskMesh);
+
+            // Neon Ring on Desk
+            const ringGeo = new THREE.TorusGeometry(2.72, 0.025, 16, 64);
+            const ringMesh = new THREE.Mesh(ringGeo, neonBlueMat);
+            ringMesh.rotation.x = Math.PI / 2;
+            ringMesh.position.y = 0;
+            computerGroup.add(ringMesh);
+
+            // 2. Curved / Ultrawide Monitor
+            const monitorGroup = new THREE.Group();
+            monitorGroup.position.set(-0.35, 0, -0.45);
+            computerGroup.add(monitorGroup);
+
+            // Stand Base & Neck
+            const standBase = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.55), darkMetalMat);
+            standBase.position.y = 0.03;
+            monitorGroup.add(standBase);
+
+            const standNeck = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.75, 0.12), darkMetalMat);
+            standNeck.position.set(0, 0.4, -0.12);
+            monitorGroup.add(standNeck);
+
+            // Monitor Frame
+            const bezel = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.42, 0.1), chassisMat);
+            bezel.position.set(0, 1.15, 0);
+            monitorGroup.add(bezel);
+
+            // Dynamic Screen Canvas Texture
+            const screenCanvas = document.createElement('canvas');
+            screenCanvas.width = 512;
+            screenCanvas.height = 288;
+            const sCtx = screenCanvas.getContext('2d');
+            
+            // Draw Futuristic UI on Monitor Screen
+            const grad = sCtx.createLinearGradient(0, 0, 512, 288);
+            grad.addColorStop(0, '#090d16');
+            grad.addColorStop(1, '#1e1b4b');
+            sCtx.fillStyle = grad;
+            sCtx.fillRect(0, 0, 512, 288);
+
+            // Code & Chart lines
+            sCtx.fillStyle = '#38bdf8';
+            sCtx.font = 'bold 22px sans-serif';
+            sCtx.fillText('SISTEM KOMPUTER OS v3.0', 28, 45);
+            
+            sCtx.fillStyle = '#94a3b8';
+            sCtx.font = '14px monospace';
+            sCtx.fillText('> CPU: ACTIVE [98.4% EFFICIENCY]', 28, 80);
+            sCtx.fillText('> RAM: 32GB DDR5 SYNCHRONIZED', 28, 105);
+            sCtx.fillText('> I/O BUS: READY', 28, 130);
+
+            // Graphic Bars
+            const barColors = ['#38bdf8', '#818cf8', '#c084fc', '#34d399', '#fbbf24'];
+            for (let i = 0; i < 5; i++) {
+                sCtx.fillStyle = barColors[i];
+                const h = 40 + (i * 18);
+                sCtx.fillRect(30 + i * 45, 250 - h, 28, h);
+            }
+
+            // Circle Diagram
+            sCtx.strokeStyle = '#38bdf8';
+            sCtx.lineWidth = 6;
+            sCtx.beginPath();
+            sCtx.arc(390, 175, 55, 0, Math.PI * 1.6);
+            sCtx.stroke();
+
+            const screenTex = new THREE.CanvasTexture(screenCanvas);
+            const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+            const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.36, 1.28), screenMat);
+            screenMesh.position.set(0, 1.15, 0.055);
+            monitorGroup.add(screenMesh);
+
+            // 3. Gaming / Workstation CPU Tower
+            const cpuGroup = new THREE.Group();
+            cpuGroup.position.set(1.45, 0.72, -0.2);
+            computerGroup.add(cpuGroup);
+
+            const cpuBody = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.44, 1.35), chassisMat);
+            cpuGroup.add(cpuBody);
+
+            // Tempered Glass Side Panel
+            const sideGlass = new THREE.Mesh(new THREE.PlaneGeometry(1.22, 1.3), glassMat);
+            sideGlass.rotation.y = -Math.PI / 2;
+            sideGlass.position.set(-0.38, 0, 0);
+            cpuGroup.add(sideGlass);
+
+            // Glowing RGB Fans inside CPU
+            const fanGeo = new THREE.TorusGeometry(0.16, 0.025, 12, 32);
+            for (let i = 0; i < 3; i++) {
+                const fan = new THREE.Mesh(fanGeo, i % 2 === 0 ? neonBlueMat : neonPurpleMat);
+                fan.position.set(0, 0.42 - i * 0.42, 0.68);
+                cpuGroup.add(fan);
+            }
+
+            // Internal Motherboard & GPU Glow
+            const gpuBar = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.85), neonPurpleMat);
+            gpuBar.position.set(-0.15, -0.05, 0);
+            cpuGroup.add(gpuBar);
+
+            // 4. Mechanical Keyboard
+            const kbGroup = new THREE.Group();
+            kbGroup.position.set(-0.45, 0.04, 0.75);
+            computerGroup.add(kbGroup);
+
+            const kbBase = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.06, 0.52), darkMetalMat);
+            kbGroup.add(kbBase);
+
+            const kbGlowStrip = new THREE.Mesh(new THREE.BoxGeometry(1.47, 0.02, 0.54), neonBlueMat);
+            kbGlowStrip.position.y = -0.015;
+            kbGroup.add(kbGlowStrip);
+
+            // Keycaps rows
+            const keyMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 11; c++) {
+                    const key = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.03, 0.08), keyMat);
+                    key.position.set(-0.58 + c * 0.115, 0.04, -0.16 + r * 0.105);
+                    kbGroup.add(key);
+                }
+            }
+
+            // 5. Wireless Ergonomic Mouse
+            const mouseGroup = new THREE.Group();
+            mouseGroup.position.set(0.65, 0.05, 0.78);
+            computerGroup.add(mouseGroup);
+
+            const mouseBody = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.09, 0.4), darkMetalMat);
+            mouseGroup.add(mouseBody);
+
+            const mouseWheel = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.08), neonPurpleMat);
+            mouseWheel.position.set(0, 0.045, -0.08);
+            mouseGroup.add(mouseWheel);
+
+            // Floating Data Particles around Computer
+            const particleGeo = new THREE.OctahedronGeometry(0.05, 0);
+            for (let i = 0; i < 12; i++) {
+                const pMesh = new THREE.Mesh(particleGeo, i % 2 === 0 ? neonBlueMat : neonPurpleMat);
+                const angle = (i / 12) * Math.PI * 2;
+                pMesh.position.set(Math.cos(angle) * 2.2, 0.6 + (i % 3) * 0.5, Math.sin(angle) * 2.2);
+                pMesh.userData = { angle: angle, radius: 2.2, speed: 0.008 + (i % 4) * 0.002, baseY: pMesh.position.y };
+                computerGroup.add(pMesh);
+            }
+
+            // Mouse & Touch Orbit Interaction
+            const domElem = renderer.domElement;
+
+            domElem.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                targetRotation.y += deltaX * 0.01;
+                targetRotation.x = Math.max(-0.3, Math.min(0.6, targetRotation.x + deltaY * 0.008));
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            // Touch events for mobile
+            domElem.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }, { passive: true });
+
+            domElem.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                const deltaY = e.touches[0].clientY - previousMousePosition.y;
+                targetRotation.y += deltaX * 0.012;
+                targetRotation.x = Math.max(-0.3, Math.min(0.6, targetRotation.x + deltaY * 0.008));
+                previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            domElem.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-3d-container');
+            if (!container || !renderer || !camera) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function focusCamera3D(part) {
+            if (part === 'all') {
+                targetCameraPos = { x: 0, y: 1.8, z: 6.2 };
+                targetRotation = { x: 0.15, y: -0.45 };
+                setRobotMessage("Menampilkan keseluruhan unit workstation komputer 3D! 🖥️");
+            } else if (part === 'monitor') {
+                targetCameraPos = { x: -0.35, y: 1.4, z: 3.6 };
+                targetRotation = { x: 0.05, y: 0 };
+                setRobotMessage("<strong>Monitor (Output Device):</strong> Menampilkan antarmuka visual dari hasil pemrosesan grafis.");
+            } else if (part === 'cpu') {
+                targetCameraPos = { x: 1.5, y: 1.1, z: 3.8 };
+                targetRotation = { x: 0.1, y: -0.75 };
+                setRobotMessage("<strong>CPU Tower (Process Device):</strong> Di dalamnya terdapat Processor, Motherboard, RAM, dan GPU!");
+            } else if (part === 'keyboard') {
+                targetCameraPos = { x: -0.3, y: 1.6, z: 3.5 };
+                targetRotation = { x: 0.45, y: 0 };
+                setRobotMessage("<strong>Keyboard & Mouse (Input Device):</strong> Mengirimkan perintah pengguna ke dalam sistem.");
+            }
+        }
+
+        function toggleAutoRotate() {
+            isAutoRotating = !isAutoRotating;
+            const btn = document.getElementById('btn-autorotate');
+            btn.innerHTML = `<i class="fa-solid fa-rotate mr-1"></i> Auto-Putar: ${isAutoRotating ? 'ON' : 'OFF'}`;
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            if (!renderer || !scene || !camera || !computerGroup) return;
+
+            if (isAutoRotating && !isDragging) {
+                targetRotation.y += 0.0045;
+            }
+
+            // Smooth interpolation for rotation and camera zoom
+            computerGroup.rotation.y += (targetRotation.y - computerGroup.rotation.y) * 0.08;
+            computerGroup.rotation.x += (targetRotation.x - computerGroup.rotation.x) * 0.08;
+
+            camera.position.x += (targetCameraPos.x - camera.position.x) * 0.08;
+            camera.position.y += (targetCameraPos.y - camera.position.y) * 0.08;
+            camera.position.z += (targetCameraPos.z - camera.position.z) * 0.08;
+            camera.lookAt(0, 0.65, 0);
+
+            // Animate orbiting data particles
+            const time = Date.now() * 0.002;
+            computerGroup.children.forEach(child => {
+                if (child.userData && child.userData.radius) {
+                    child.userData.angle += child.userData.speed;
+                    child.position.x = Math.cos(child.userData.angle) * child.userData.radius;
+                    child.position.z = Math.sin(child.userData.angle) * child.userData.radius;
+                    child.position.y = child.userData.baseY + Math.sin(time + child.userData.angle * 2) * 0.15;
+                    child.rotation.x += 0.02;
+                    child.rotation.y += 0.02;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // ==================== 9. INITIALIZATION ON LOAD ====================
+        window.onload = function() {
+            selectMateriTab('hardware');
+            initSimulation();
+            loadQuizQuestion();
+            init3DComputer();
+            animate3D();
+        };
+    </script>
+</body>
+</html>
